@@ -136,21 +136,17 @@ int main(void)
 				err(1, "lstat");
 		}
 		else {
-			if (!(sb.st_mode & S_IFLNK)) {
+			if (!(sb.st_mode & S_IFLNK))
 				errx(1, HOSTNAME_IF " is not a symlink");
-			}
-			if (unlink(HOSTNAME_IF) < 0) {
+			if (unlink(HOSTNAME_IF) < 0)
 				err(1, "unlink");
-			}
 		}
 
-		if (symlink(filename, HOSTNAME_IF) < 0) {
+		if (symlink(filename, HOSTNAME_IF) < 0)
 			err(1, "symlink");
-		}
 	}
-	else {
+	else
 		errx(1, "no known network found");
-	}
 
 	(void) execl("/bin/sh", "/bin/sh", "/etc/netstart", ifname, NULL);
 	err(1, "execl");
