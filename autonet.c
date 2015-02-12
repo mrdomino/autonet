@@ -68,10 +68,13 @@ NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 		match = (0 == memcmp(net_pref->bssid, nr->nr_bssid,
 		                     IEEE80211_ADDR_LEN));
 	else match = 1;
-	if (net_pref->nwid)
-		match = match && (0 == strncmp(net_pref->nwid,
-		                               (const char*)nr->nr_nwid,
-		                               nr->nr_nwid_len));
+	if (net_pref->nwid) {
+		match = match &&
+			strlen(net_pref->nwid) == nr->nr_nwid_len &&
+			(0 == strncmp(net_pref->nwid,
+			              (const char*)nr->nr_nwid,
+			              nr->nr_nwid_len));
+	}
 	return match;
 }
 
