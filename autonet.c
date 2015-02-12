@@ -114,6 +114,7 @@ int main(void)
 		if (ioctl(s, SIOCSIFFLAGS, (caddr_t)&ifr) < 0)
 			err(1, "SIOCSIFFLAGS");
 	}
+	/* TODO: don't scan if network already active */
 	if (ioctl(s, SIOCS80211SCAN, (caddr_t)&ifr) != 0)
 		err(1, "SIOCS80211SCAN");
 
