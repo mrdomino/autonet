@@ -128,19 +128,19 @@ int main(void)
 		err(1, "SIOCG80211ALLNODES");
 	close(s);
 
-	for (i = 0; i < na.na_nodes; i++) {
-		net_pref = &networks[0];
-		while (net_pref->nwid || net_pref->filename) {
+	net_pref = &networks[0];
+	while (net_pref->nwid || net_pref->filename) {
+		for (i = 0; i < na.na_nodes; i++) {
 			if (NetPref_match(net_pref, &nr[i])) {
 				NetPref_print_filename(net_pref, filename,
 				                       sizeof(filename));
 				found = 1;
 				break;
 			}
-			net_pref++;
 		}
 		if (found)
 			break;
+		net_pref++;
 	}
 
 	if (found) {

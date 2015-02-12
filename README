@@ -52,5 +52,4 @@ if you have
 /etc/hostname.d/iwn0.mynet should contain the configuration for the
 "whatever" network.
 
-autonet just grabs the first network it recognizes; prioritization
-may be added at some point.
+autonet looks for networks in the order they're defined in config.h.
