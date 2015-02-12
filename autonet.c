@@ -77,26 +77,13 @@ NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 
 int main(void)
 {
-	struct stat sb;
 	struct ieee80211_nodereq_all na;
 	struct ieee80211_nodereq nr[512];
 	struct ifreq ifr;
 	int s, i, flags, found = 0;
 	const NetPref *net_pref;
+	struct stat sb;
 	char filename[256];
-
-	if (lstat(HOSTNAME_IF, &sb) < 0) {
-		if (errno != ENOENT)
-			err(1, "lstat");
-	}
-	else {
-		if (!(sb.st_mode & S_IFLNK)) {
-			errx(1, HOSTNAME_IF " is not a symlink");
-		}
-		if (unlink(HOSTNAME_IF) < 0) {
-			err(1, "unlink");
-		}
-	}
 
 	bzero(&ifr, sizeof(ifr));
 	ifr.ifr_addr.sa_family = AF_INET;
@@ -144,6 +131,19 @@ int main(void)
 	}
 
 	if (found) {
+		if (lstat(HOSTNAME_IF, &sb) < 0) {
+			if (errno != ENOENT)
+				err(1, "lstat");
+		}
+		else {
+			if (!(sb.st_mode & S_IFLNK)) {
+				errx(1, HOSTNAME_IF " is not a symlink");
+			}
+			if (unlink(HOSTNAME_IF) < 0) {
+				err(1, "unlink");
+			}
+		}
+
 		if (symlink(filename, HOSTNAME_IF) < 0) {
 			err(1, "symlink");
 		}
