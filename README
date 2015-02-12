@@ -23,10 +23,13 @@ file as a symlink into /etc/hostname.d (described below) and exec
 /etc/netstart <ifname>.
 
 autonet does not continuously monitor for network changes in the
-background.  You run it manually whenever you want to get onto a
+background. It doesn't show you a list of networks and ask you to
+pick one. It doesn't communicate over dbus. It has no runtime
+configuration whatsoever -- if you want to add a new network, you
+need to recompile it. You run it whenever you want to get onto a
 known wireless network, it finds a network for you and connects to
-it, and then it exits. If you wanted to, you might hook it up to a
-resume hook or something.
+it, and then it exits. If you're in a cafe and need to figure out
+which network to connect to, just scan and configure with ifconfig(8).
 
 Configuration
 -------------
