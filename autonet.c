@@ -134,7 +134,7 @@ int main(void)
 	}
 
 	if (found) {
-		printf("network found:%s\n", NetPref_network(net_pref));
+		printf("network %s\n", NetPref_network(net_pref));
 		if (lstat(HOSTNAME_IF, &sb) < 0) {
 			if (errno != ENOENT)
 				err(1, "lstat");
