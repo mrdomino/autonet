@@ -29,7 +29,6 @@ typedef struct {
 } NetPref;
 
 #define BSSID_NONE { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }
-static const uint8_t bssid_none[IEEE80211_ADDR_LEN] = BSSID_NONE;
 
 #include "config.h"
 
@@ -62,6 +61,7 @@ NetPref_print_filename(const NetPref* net_pref, char* buf, size_t len)
 static int
 NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 {
+	static const uint8_t bssid_none[IEEE80211_ADDR_LEN] = BSSID_NONE;
 	int match;
 
 	if (0 != memcmp(net_pref->bssid, bssid_none, IEEE80211_ADDR_LEN))
@@ -83,10 +83,11 @@ int main(void)
 	struct ieee80211_nodereq_all na;
 	struct ieee80211_nodereq nr[512];
 	struct ifreq ifr;
-	int s, i, flags, found = 0;
+	int s, i, found = 0;
+	size_t r;
 	const NetPref *net_pref;
 	struct stat sb;
-	char filename[256];
+	char buf[256];
 
 	bzero(&ifr, sizeof(ifr));
 	ifr.ifr_addr.sa_family = AF_INET;
@@ -97,10 +98,8 @@ int main(void)
 		err(1, "socket");
 	if (ioctl(s, SIOCGIFFLAGS, (caddr_t)&ifr) < 0)
 		err(1, "SIOCGIFFLAGS");
-	flags = ifr.ifr_flags;
-	if (!(flags & IFF_UP)) {
-		flags |= IFF_UP;
-		ifr.ifr_flags = flags;
+	if (!(ifr.ifr_flags & IFF_UP)) {
+		ifr.ifr_flags |= IFF_UP;
 		if (ioctl(s, SIOCSIFFLAGS, (caddr_t)&ifr) < 0)
 			err(1, "SIOCSIFFLAGS");
 	}
@@ -122,8 +121,6 @@ int main(void)
 	while (net_pref->nwid || net_pref->filename) {
 		for (i = 0; i < na.na_nodes; i++) {
 			if (NetPref_match(net_pref, &nr[i])) {
-				NetPref_print_filename(net_pref, filename,
-				                       sizeof(filename));
 				found = 1;
 				break;
 			}
@@ -134,7 +131,11 @@ int main(void)
 	}
 
 	if (found) {
-		printf("network %s\n", NetPref_network(net_pref));
+		(void) strlcpy(buf, "network ", sizeof(buf));
+		r = strlcat(buf, NetPref_network(net_pref), sizeof(buf));
+		assert(r < sizeof(buf));
+		puts(buf);
+
 		if (lstat(HOSTNAME_IF, &sb) < 0) {
 			if (errno != ENOENT)
 				err(1, "lstat");
@@ -146,7 +147,8 @@ int main(void)
 				err(1, "unlink");
 		}
 
-		if (symlink(filename, HOSTNAME_IF) < 0)
+		NetPref_print_filename(net_pref, buf, sizeof(buf));
+		if (symlink(buf, HOSTNAME_IF) < 0)
 			err(1, "symlink");
 	}
 	else
