@@ -50,13 +50,13 @@ NetPref_filename(const NetPref* net_pref)
 static void
 NetPref_print_filename(const NetPref* net_pref, char* buf, size_t len)
 {
-	int r;
+	size_t r;
 
-	r = snprintf(buf, len, "hostname.d/%s.%s",
-	             ifname, NetPref_filename(net_pref));
-	if (r < 0)
-		err(1, "snprintf");
-	assert((size_t)r < len);
+	(void) strlcpy(buf, "hostname.d/", len);
+	(void) strlcat(buf, ifname, len);
+	(void) strlcat(buf, ".", len);
+	r = strlcat(buf, NetPref_filename(net_pref), len);
+	assert(r < len);
 }
 
 static int
