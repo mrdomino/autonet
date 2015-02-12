@@ -75,12 +75,6 @@ NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 	return match;
 }
 
-#ifdef DEBUG
-#define dprintf(...) fprintf(stderr, __VA_ARGS__)
-#else
-#define dprintf(...) 0
-#endif
-
 int main(void)
 {
 	struct stat sb;
@@ -115,7 +109,6 @@ int main(void)
 		err(1, "SIOCGIFFLAGS");
 	flags = ifr.ifr_flags;
 	if (!(flags & IFF_UP)) {
-		(void) dprintf("bringing up if\n");
 		flags |= IFF_UP;
 		ifr.ifr_flags = flags;
 		if (ioctl(s, SIOCSIFFLAGS, (caddr_t)&ifr) < 0)
@@ -135,7 +128,6 @@ int main(void)
 	close(s);
 
 	for (i = 0; i < na.na_nodes; i++) {
-		(void) dprintf("trying %.*s\n", nr[i].nr_nwid_len, nr[i].nr_nwid);
 		net_pref = &networks[0];
 		while (net_pref->nwid || net_pref->filename) {
 			if (NetPref_match(net_pref, &nr[i])) {
@@ -151,7 +143,6 @@ int main(void)
 	}
 
 	if (found) {
-		(void) dprintf("found profile:%s\n", filename);
 		if (symlink(filename, HOSTNAME_IF) < 0) {
 			err(1, "symlink");
 		}
@@ -160,7 +151,6 @@ int main(void)
 		errx(1, "no known network found");
 	}
 
-	execl("/bin/sh", "/bin/sh",
-	      "/etc/netstart", ifname, NULL);
+	(void) execl("/bin/sh", "/bin/sh", "/etc/netstart", ifname, NULL);
 	err(1, "execl");
 }
