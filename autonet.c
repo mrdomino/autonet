@@ -38,7 +38,7 @@ static const char *ifname = IFNAME;
 
 
 static const char*
-NetPref_filename(const NetPref* net_pref)
+NetPref_network(const NetPref* net_pref)
 {
 	if (net_pref->filename) {
 		return net_pref->filename;
@@ -55,7 +55,7 @@ NetPref_print_filename(const NetPref* net_pref, char* buf, size_t len)
 	(void) strlcpy(buf, "hostname.d/", len);
 	(void) strlcat(buf, ifname, len);
 	(void) strlcat(buf, ".", len);
-	r = strlcat(buf, NetPref_filename(net_pref), len);
+	r = strlcat(buf, NetPref_network(net_pref), len);
 	assert(r < len);
 }
 
@@ -134,7 +134,7 @@ int main(void)
 	}
 
 	if (found) {
-		printf("network found:%s\n", NetPref_filename(net_pref));
+		printf("network found:%s\n", NetPref_network(net_pref));
 		if (lstat(HOSTNAME_IF, &sb) < 0) {
 			if (errno != ENOENT)
 				err(1, "lstat");
