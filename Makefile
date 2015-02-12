@@ -1,3 +1,6 @@
+# autonet - automatic network chooser
+# See LICENSE file for copyright and license details.
+
 include config.mk
 
 all: options autonet

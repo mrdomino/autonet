@@ -1,0 +1,56 @@
+autonet - automatic wifi network chooser
+========================================
+autonet is a simple wifi chooser for OpenBSD.
+
+Installation
+------------
+Edit config.mk to match your local setup (autonet is installed into
+/usr/local by default.)
+
+Then enter the following commands to build and install autonet
+(install may need to be run as root):
+
+    make
+    make install
+
+
+Using autonet
+-------------
+Bring down your wireless interface with "ifconfig down" if necessary.
+Then, run "autonet". autonet will scan for networks. If it sees one
+that it recognizes, it will create the appropriate hostname.if(5)
+file as a symlink into /etc/hostname.d (described below) and exec
+/etc/netstart <ifname>.
+
+autonet does not continuously monitor for network changes in the
+background.  You run it manually whenever you want to get onto a
+known wireless network, it finds a network for you and connects to
+it, and then it exits. If you wanted to, you might hook it up to a
+resume hook or something.
+
+Configuration
+-------------
+Edit config.h and recompile.
+
+autonet assumes that you have files under /etc/hostname.d that are
+named like "<ifname>.<network-name>". There must be a corrseponding
+file for each NetPref defined in config.h, named for either the
+filename or, if filename is NULL, the nwid. autonet doesn't check
+this for you -- you have to do it yourself.
+
+So for instance if you are using autonet on iwn0 and have a NetPref
+with
+
+    { .nwid = "attwifi", .filename = NULL },
+
+there should be a file at /etc/hostname.d/iwn0.attwifi that contains
+the hostname.if(5) configuration for the attwifi network. Likewise
+if you have
+
+    { .nwid = "whatever", .filename = "mynet" },
+
+/etc/hostname.d/iwn0.mynet should contain the configuration for the
+"whatever" network.
+
+autonet just grabs the first network it recognizes; prioritization
+may be added at some point.
