@@ -39,7 +39,7 @@ static const char *ifname = IFNAME;
 #define HOSTNAME_IF "/etc/hostname." IFNAME
 
 
-static void
+__dead static void
 usage(const char* argv0)
 {
 	fprintf(stderr,
@@ -90,18 +90,21 @@ NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 }
 
 /*
- * Set up the hostname.if(5) symlink for ifname.
+ * Set up the hostname.if(5) symlink and exec netstart(8).
  *
+ * Prints the profile name.
  * Links /etc/hostname.<ifname> -> /etc/hostname.d/<ifname>.<profile>.
  * Dies if /etc/hostname.<ifname> exists and is not a symlink.
  */
-static void
-NetPref_make_symlink(const NetPref* net_pref)
+__dead static void
+NetPref_connect(const NetPref* net_pref)
 {
 	struct stat sb;
 	int r;
 	char buf[256];
 
+	printf("network %s\n", NetPref_profile(net_pref));
+	/* replace hostname.if(5) symlink for ifname */
 	if (lstat(HOSTNAME_IF, &sb) < 0) {
 		if (errno != ENOENT)
 			err(1, "lstat");
@@ -112,7 +115,6 @@ NetPref_make_symlink(const NetPref* net_pref)
 		if (unlink(HOSTNAME_IF) < 0)
 			err(1, "unlink");
 	}
-
 	r = snprintf(buf, sizeof(buf), "hostname.d/%s.%s", ifname,
 	             NetPref_profile(net_pref));
 	if (r < 0)
@@ -120,14 +122,18 @@ NetPref_make_symlink(const NetPref* net_pref)
 	assert((size_t)r < sizeof(buf));
 	if (symlink(buf, HOSTNAME_IF) < 0)
 		err(1, "symlink");
+	/* exec netstart(8) */
+	(void) execl("/bin/sh", "/bin/sh", "/etc/netstart", ifname, NULL);
+	err(1, "execl");
 }
 
-int main(int argc, const char* argv[])
+__dead int
+main(int argc, const char* argv[])
 {
 	struct ieee80211_nodereq_all na;
 	struct ieee80211_nodereq nr[512];
 	struct ifreq ifr;
-	int s, i, found = 0;
+	int s, i;
 	const NetPref *net_pref;
 
 	if (argc != 1)
@@ -167,20 +173,11 @@ int main(int argc, const char* argv[])
 	     net_pref->nwid || net_pref->filename; net_pref++) {
 		for (i = 0; i < na.na_nodes; i++) {
 			if (NetPref_match(net_pref, &nr[i])) {
-				found = 1;
-				goto out;
+				NetPref_connect(net_pref);
+				/*NOTREACHED*/
 			}
 		}
 		net_pref++;
 	}
-
-out:
-	if (found) {
-		printf("network %s\n", NetPref_profile(net_pref));
-		NetPref_make_symlink(net_pref);
-	}
-	else errx(2, "no known network found");
-
-	(void) execl("/bin/sh", "/bin/sh", "/etc/netstart", ifname, NULL);
-	err(1, "execl");
+	errx(2, "no known network found");
 }
