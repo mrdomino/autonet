@@ -177,7 +177,6 @@ main(int argc, const char* argv[])
 				/*NOTREACHED*/
 			}
 		}
-		net_pref++;
 	}
 	errx(2, "no known network found");
 }
