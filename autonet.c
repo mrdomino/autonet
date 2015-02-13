@@ -23,6 +23,9 @@
  * If filename is NULL, nwid must not be NULL, and is used as the filename.
  */
 typedef struct {
+	/* TODO: numeric priority, connect to the network with highest signal
+	 * strength at best priority
+	 */
 	char*   nwid;
 	uint8_t bssid[IEEE80211_ADDR_LEN];
 	char*   filename;
@@ -36,8 +39,11 @@ static const char *ifname = IFNAME;
 #define HOSTNAME_IF "/etc/hostname." IFNAME
 
 
+/*
+ * Get the name of this profile: filename if present, else nwid.
+ */
 static const char*
-NetPref_network(const NetPref* net_pref)
+NetPref_profile(const NetPref* net_pref)
 {
 	if (net_pref->filename) {
 		return net_pref->filename;
@@ -46,36 +52,59 @@ NetPref_network(const NetPref* net_pref)
 	return net_pref->nwid;
 }
 
-static void
-NetPref_print_filename(const NetPref* net_pref, char* buf, size_t len)
-{
-	size_t r;
-
-	(void) strlcpy(buf, "hostname.d/", len);
-	(void) strlcat(buf, ifname, len);
-	(void) strlcat(buf, ".", len);
-	r = strlcat(buf, NetPref_network(net_pref), len);
-	assert(r < len);
-}
-
+/*
+ * Does nr match net_pref?
+ *
+ * If net_pref's bssid is other than BSSID_NONE, it must match nr's bssid. If
+ * the net_pref's nwid is non-NULL, it must match nr's nwid.
+ */
 static int
 NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 {
 	static const uint8_t bssid_none[IEEE80211_ADDR_LEN] = BSSID_NONE;
-	int match;
+	int bssids_match;
 
 	if (0 != memcmp(net_pref->bssid, bssid_none, IEEE80211_ADDR_LEN))
-		match = (0 == memcmp(net_pref->bssid, nr->nr_bssid,
-		                     IEEE80211_ADDR_LEN));
-	else match = 1;
-	if (net_pref->nwid) {
-		match = match &&
-			strlen(net_pref->nwid) == nr->nr_nwid_len &&
-			(0 == strncmp(net_pref->nwid,
-			              (const char*)nr->nr_nwid,
-			              nr->nr_nwid_len));
+		bssids_match = (0 == memcmp(net_pref->bssid, nr->nr_bssid,
+		                            IEEE80211_ADDR_LEN));
+	else bssids_match = 1;
+	if (!net_pref->nwid)
+		return bssids_match;
+	return bssids_match &&
+	       strlen(net_pref->nwid) == nr->nr_nwid_len &&
+	       (0 == strncmp(net_pref->nwid,
+	                     (const char*)nr->nr_nwid,
+	                     nr->nr_nwid_len));
+}
+
+/*
+ * Link /etc/hostname.<ifname> -> /etc/hostname.d/<ifname>.<profile>.
+ */
+static void
+NetPref_make_symlink(const NetPref* net_pref)
+{
+	struct stat sb;
+	int r;
+	char buf[256];
+
+	if (lstat(HOSTNAME_IF, &sb) < 0) {
+		if (errno != ENOENT)
+			err(1, "lstat");
 	}
-	return match;
+	else {
+		if (!(sb.st_mode & S_IFLNK))
+			errx(1, HOSTNAME_IF " is not a symlink");
+		if (unlink(HOSTNAME_IF) < 0)
+			err(1, "unlink");
+	}
+
+	r = snprintf(buf, sizeof(buf), "hostname.d/%s.%s", ifname,
+	             NetPref_profile(net_pref));
+	if (r < 0)
+		err(1, "snprintf");
+	assert((size_t)r < sizeof(buf));
+	if (symlink(buf, HOSTNAME_IF) < 0)
+		err(1, "symlink");
 }
 
 int main(void)
@@ -84,15 +113,13 @@ int main(void)
 	struct ieee80211_nodereq nr[512];
 	struct ifreq ifr;
 	int s, i, found = 0;
-	size_t r;
 	const NetPref *net_pref;
-	struct stat sb;
-	char buf[256];
 
 	bzero(&ifr, sizeof(ifr));
 	ifr.ifr_addr.sa_family = AF_INET;
 	(void) strlcpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
 
+	/* Bring the interface up and scan for networks */
 	s = socket(AF_INET, SOCK_DGRAM, 0);
 	if (s < 0)
 		err(1, "socket");
@@ -107,52 +134,35 @@ int main(void)
 	if (ioctl(s, SIOCS80211SCAN, (caddr_t)&ifr) != 0)
 		err(1, "SIOCS80211SCAN");
 
+	/* Get all the networks we found */
 	bzero(&na, sizeof(na));
 	bzero(&nr, sizeof(nr));
 	na.na_node = nr;
 	na.na_size = sizeof(nr);
 	(void) strlcpy(na.na_ifname, ifname, sizeof(na.na_ifname));
-
 	if (ioctl(s, SIOCG80211ALLNODES, &na) != 0)
 		err(1, "SIOCG80211ALLNODES");
 	close(s);
 
-	net_pref = &networks[0];
-	while (net_pref->nwid || net_pref->filename) {
+	/* Search for a match in order of preference */
+	for (net_pref = &networks[0];
+	     net_pref->nwid || net_pref->filename; net_pref++) {
 		for (i = 0; i < na.na_nodes; i++) {
 			if (NetPref_match(net_pref, &nr[i])) {
 				found = 1;
-				break;
+				goto out;
 			}
 		}
-		if (found)
-			break;
 		net_pref++;
 	}
 
+out:
 	if (found) {
-		(void) strlcpy(buf, "network ", sizeof(buf));
-		r = strlcat(buf, NetPref_network(net_pref), sizeof(buf));
-		assert(r < sizeof(buf));
-		puts(buf);
-
-		if (lstat(HOSTNAME_IF, &sb) < 0) {
-			if (errno != ENOENT)
-				err(1, "lstat");
-		}
-		else {
-			if (!(sb.st_mode & S_IFLNK))
-				errx(1, HOSTNAME_IF " is not a symlink");
-			if (unlink(HOSTNAME_IF) < 0)
-				err(1, "unlink");
-		}
-
-		NetPref_print_filename(net_pref, buf, sizeof(buf));
-		if (symlink(buf, HOSTNAME_IF) < 0)
-			err(1, "symlink");
+		printf("network %s\n", NetPref_profile(net_pref));
+		NetPref_make_symlink(net_pref);
 	}
 	else
-		errx(1, "no known network found");
+		errx(2, "no known network found");
 
 	(void) execl("/bin/sh", "/bin/sh", "/etc/netstart", ifname, NULL);
 	err(1, "execl");
