@@ -39,6 +39,18 @@ static const char *ifname = IFNAME;
 #define HOSTNAME_IF "/etc/hostname." IFNAME
 
 
+static void
+usage(const char* argv0)
+{
+	fprintf(stderr,
+	        "usage: %s\n"
+	        "automatic wifi network chooser.\n"
+	        "Creates an appropriate /etc/hostname.%s and "
+	        "execs /etc/netstart %s.\n",
+	        argv0, ifname, ifname);
+	exit(1);
+}
+
 /*
  * Get the name of this profile: filename if present, else nwid.
  */
@@ -110,13 +122,16 @@ NetPref_make_symlink(const NetPref* net_pref)
 		err(1, "symlink");
 }
 
-int main(void)
+int main(int argc, const char* argv[])
 {
 	struct ieee80211_nodereq_all na;
 	struct ieee80211_nodereq nr[512];
 	struct ifreq ifr;
 	int s, i, found = 0;
 	const NetPref *net_pref;
+
+	if (argc != 1)
+		usage(argv[0]);
 
 	bzero(&ifr, sizeof(ifr));
 	ifr.ifr_addr.sa_family = AF_INET;
