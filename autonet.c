@@ -78,7 +78,10 @@ NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 }
 
 /*
- * Link /etc/hostname.<ifname> -> /etc/hostname.d/<ifname>.<profile>.
+ * Set up the hostname.if(5) symlink for ifname.
+ *
+ * Links /etc/hostname.<ifname> -> /etc/hostname.d/<ifname>.<profile>.
+ * Dies if /etc/hostname.<ifname> exists and is not a symlink.
  */
 static void
 NetPref_make_symlink(const NetPref* net_pref)
@@ -130,7 +133,7 @@ int main(void)
 		if (ioctl(s, SIOCSIFFLAGS, (caddr_t)&ifr) < 0)
 			err(1, "SIOCSIFFLAGS");
 	}
-	/* TODO: don't scan if network already active */
+	/* TODO: exit successfully if network already active */
 	if (ioctl(s, SIOCS80211SCAN, (caddr_t)&ifr) != 0)
 		err(1, "SIOCS80211SCAN");
 
