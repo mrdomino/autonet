@@ -12,6 +12,7 @@
 #include <err.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,16 +71,16 @@ NetPref_profile(const NetPref* net_pref)
  * If net_pref's bssid is other than BSSID_NONE, it must match nr's bssid. If
  * the net_pref's nwid is non-NULL, it must match nr's nwid.
  */
-static int
+static bool
 NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 {
 	static const uint8_t bssid_none[IEEE80211_ADDR_LEN] = BSSID_NONE;
-	int bssids_match;
+	bool bssids_match;
 
 	if (0 != memcmp(net_pref->bssid, bssid_none, IEEE80211_ADDR_LEN))
 		bssids_match = (0 == memcmp(net_pref->bssid, nr->nr_bssid,
 		                            IEEE80211_ADDR_LEN));
-	else bssids_match = 1;
+	else bssids_match = true;
 	if (!net_pref->nwid)
 		return bssids_match;
 	return bssids_match &&
@@ -139,11 +140,9 @@ main(int argc, const char* argv[])
 	if (argc != 1)
 		usage(argv[0]);
 
-	bzero(&ifr, sizeof(ifr));
-	ifr.ifr_addr.sa_family = AF_INET;
-	(void) strlcpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
-
 	/* Bring the interface up and scan for networks */
+	bzero(&ifr, sizeof(ifr));
+	(void) strlcpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
 	s = socket(AF_INET, SOCK_DGRAM, 0);
 	if (s < 0)
 		err(1, "socket");
@@ -179,4 +178,5 @@ main(int argc, const char* argv[])
 		}
 	}
 	errx(2, "no known network found");
+	/*NOTREACHED*/
 }
