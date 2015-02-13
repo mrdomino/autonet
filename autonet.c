@@ -161,8 +161,7 @@ out:
 		printf("network %s\n", NetPref_profile(net_pref));
 		NetPref_make_symlink(net_pref);
 	}
-	else
-		errx(2, "no known network found");
+	else errx(2, "no known network found");
 
 	(void) execl("/bin/sh", "/bin/sh", "/etc/netstart", ifname, NULL);
 	err(1, "execl");
