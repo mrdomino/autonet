@@ -1,0 +1,53 @@
+.\" See LICENSE file for copyright and license details.
+.Dd $Mdocdate: Feb 14 2015$
+.Dt AUTONET 1
+.Os
+.Sh NAME
+.Nm autonet
+.Nd automatically connect to a known wifi network
+.Sh SYNOPSIS
+.Nm
+.Sh DESCRIPTION
+.Nm
+brings up the configured wireless interface, scans for networks,
+and connects to the best match among previously configured known
+profiles.
+.Pp
+.Nm
+creates or resets a symlink from
+.\" TODO: better format
+.Pa /etc/hostname.<ifname>
+to the best matching
+.Pa /etc/hostname.d
+entry (described below) it found in its scan. Then, it
+execs
+.Xr netstart 8
+for
+.Ar ifname .
+.Sh FILES
+For each profile named in
+.Nm
+.Ap
+s
+.Pa config.h ,
+there should be a
+.Sm off
+.Xr hostname.if 5
+-formatted
+.Sm on
+file at
+.Pa /etc/hostname.d/<ifname>.<profile> .
+.Nm
+creates a link to one of these files when it finds a known profile.
+.Sh EXIT STATUS
+.Nm
+exits 0 on success, 1 if any of its calls failed, and 2 if it found
+no networks that matched a known profile.
+.Sh SEE ALSO
+.Xr hostname.if 5 ,
+.Xr netstart 8
+.Sh AUTHORS
+.Nm Steven Dee
+.Ao
+.Mt steve@smartercode.net
+.Ac

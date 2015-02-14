@@ -1,6 +1,6 @@
-autonet - automatic wifi network chooser
-========================================
-autonet is a simple wifi chooser for OpenBSD.
+autonet - automatically connect to a known wifi network
+=======================================================
+autonet is a simple wifi network chooser for OpenBSD.
 
 Installation
 ------------
@@ -16,10 +16,9 @@ Then enter the following commands to build and install autonet
 
 Using autonet
 -------------
-Bring down your wireless interface with "ifconfig down" if necessary.
-Then, run "autonet". autonet will scan for networks. If it sees one
-that it recognizes, it will create the appropriate hostname.if(5)
-file as a symlink into /etc/hostname.d (described below) and exec
+Run "autonet". autonet will scan for networks. If it sees one that
+it recognizes, it will create the appropriate hostname.if(5) file
+as a symlink into /etc/hostname.d (described below) and exec
 /etc/netstart <ifname>.
 
 autonet does not continuously monitor for network changes in the

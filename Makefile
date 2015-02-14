@@ -33,7 +33,10 @@ install: all
 	@echo installing executable to ${DESTDIR}${PREFIX}/bin
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
 	@cp -f autonet ${DESTDIR}${PREFIX}/bin
-	@chmod 04755 ${DESTDIR}${PREFIX}/bin/autonet
+	@chmod ${MODE} ${DESTDIR}${PREFIX}/bin/autonet
+	@echo installing manual page to ${DESTDIR}${MANPREFIX}/man1
+	@cp -f autonet.1 ${DESTDIR}${MANPREFIX}/man1
+	@chmod 644 ${DESTDIR}${MANPREFIX}/man1/autonet.1
 
 uninstall:
 	@echo removing executable from ${DESTDIR}${PREFIX}/bin
