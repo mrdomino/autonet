@@ -60,16 +60,6 @@ usage(const char* argv0)
 	exit(1);
 }
 
-static const char*
-NetPref_profile(const NetPref* net_pref)
-{
-	if (net_pref->filename) {
-		return net_pref->filename;
-	}
-	assert(net_pref->nwid);
-	return net_pref->nwid;
-}
-
 static bool
 NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 {
@@ -100,9 +90,13 @@ NetPref_connect(const NetPref* net_pref)
 {
 	struct stat sb;
 	int r;
+	const char *profile;
 	char buf[256];
 
-	printf("network %s\n", NetPref_profile(net_pref));
+	profile = net_pref->filename ? net_pref->filename : net_pref->nwid;
+	assert(profile);
+	printf("network %s\n", profile);
+
 	/* replace hostname.if(5) symlink for ifname */
 	if (lstat(HOSTNAME_IF, &sb) < 0) {
 		if (errno != ENOENT)
@@ -114,8 +108,7 @@ NetPref_connect(const NetPref* net_pref)
 		if (unlink(HOSTNAME_IF) < 0)
 			err(1, "unlink");
 	}
-	r = snprintf(buf, sizeof(buf), "hostname.d/%s.%s", ifname,
-	             NetPref_profile(net_pref));
+	r = snprintf(buf, sizeof(buf), "hostname.d/%s.%s", ifname, profile);
 	if (r < 0)
 		err(1, "snprintf");
 	assert((size_t)r < sizeof(buf));
