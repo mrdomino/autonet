@@ -110,7 +110,7 @@ NetPref_connect(const NetPref* net_pref)
 			err(1, "lstat");
 	}
 	else {
-		if (!(sb.st_mode & S_IFLNK))
+		if (!(S_ISLNK(sb.st_mode)))
 			errx(1, HOSTNAME_IF " is not a symlink");
 		if (unlink(HOSTNAME_IF) < 0)
 			err(1, "unlink");
