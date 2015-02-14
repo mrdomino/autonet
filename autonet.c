@@ -18,19 +18,22 @@
 #include <unistd.h>
 
 /*
- * At least one of {nwid, bssid} must be non-NULL.
+ * Network profile preference.
  *
- * If filename is NULL, nwid must not be NULL, and is used as the filename.
+ * Maps discovered network nwids and/or bssids to known profile names.
+ * Matches against nwid if non-NULL, and against bssid if other than BSSID_NONE.
+ * If filename is NULL, nwid is the profile name.
  */
 typedef struct {
 	/* TODO: numeric priority, connect to the network with highest signal
-	 * strength at best priority
+	 * strength at best priority.
 	 */
 	char*   nwid;
 	uint8_t bssid[IEEE80211_ADDR_LEN];
 	char*   filename;
 } NetPref;
 
+/* use the broadcast addr for BSSID_NONE; Xerox has OUI 00:00:00 */
 #define BSSID_NONE { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }
 
 #include "config.h"
@@ -51,9 +54,6 @@ usage(const char* argv0)
 	exit(1);
 }
 
-/*
- * Get the name of this profile: filename if present, else nwid.
- */
 static const char*
 NetPref_profile(const NetPref* net_pref)
 {
@@ -64,12 +64,6 @@ NetPref_profile(const NetPref* net_pref)
 	return net_pref->nwid;
 }
 
-/*
- * Does nr match net_pref?
- *
- * If net_pref's bssid is other than BSSID_NONE, it must match nr's bssid. If
- * the net_pref's nwid is non-NULL, it must match nr's nwid.
- */
 static bool
 NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 {
