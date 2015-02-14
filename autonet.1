@@ -24,7 +24,24 @@ execs
 .Xr netstart 8
 for
 .Ar ifname .
-.Sh FILES
+.Pp
+There are some things
+.Nm
+intentionally doesn't do:
+.Bl -dash
+.It
+It doesn't provide any mechanism for discovery of unknown networks \(em
+.Xr ifconfig 8
+.Ap s scan command works just fine for that.
+.It
+It doesn't use any resources monitoring the connection status; it
+runs once, synchronusly, and exits 0 when you're connected. If you
+want to maintain a connection while you're away, it's easy enough
+to write a script that calls
+.Nm
+when it detects that your network is down.
+.El
+.Sh CONFIGURATION
 For each profile named in
 .Nm
 .Ap
@@ -39,12 +56,57 @@ file at
 .Pa /etc/hostname.d/<ifname>.<profile> .
 .Nm
 creates a link to one of these files when it finds a known profile.
+For instance, if
+.Nm
+was configured for interface iwn0 with a profile named
+.Dq mynetwork ,
+then the
+.Dq mynetwork
+.Xr hostname.if 5
+configuration file would be located at
+.Pa /etc/hostname.d/iwn0.mynetwork ,
+and if that profile matched at runtime,
+.Nm
+would construct the symlink
+.Pa "/etc/hostname.iwn0"
+->
+.Pa hostname.d/iwn0.mynetwork .
+.Pp
+Note that
+.Nm
+doesn't try to parse
+.Xr hostname.if 5
+files at runtime; if the profile for
+.Dq mynetwork
+doesn't match with the configuration in
+.Pa iwn0.mynetwork
+(i.e., if
+.Pa config.h
+specifies a different nwid or bssid from the one configured in
+.Sm off
+.Pa iwn0.mynetwork
+),
+.Sm on
+.Nm
+won't notice this, and will happily create a symlink to a
+probably-broken network profile if the nwid in
+.Pa config.h
+matches. It is your responsibility to ensure that your
+.Pa config.h
+lines up with your
+.Pa hostname.d .
+.Sm on
+.Sh FILES
+.Bl -tag -width "/etc/hostname.d/XXX.YYYYYY   "
+.It Pa /etc/hostname.d/XXX.YYYYYY
+Interface- and network-specific profiles.
 .Sh EXIT STATUS
 .Nm
 exits 0 on success, 1 if any of its calls failed, and 2 if it found
 no networks that matched a known profile.
 .Sh SEE ALSO
 .Xr hostname.if 5 ,
+.Xr ifconfig 8 ,
 .Xr netstart 8
 .Sh AUTHORS
 .Nm Steven Dee
