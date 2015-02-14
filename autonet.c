@@ -34,7 +34,7 @@ typedef struct {
 } NetPref;
 
 /* use the broadcast addr for BSSID_NONE; Xerox has OUI 00:00:00 */
-#define BSSID_NONE { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }
+#define BSSID_NONE "\xff\xff\xff\xff\xff\xff"
 
 #include "config.h"
 
@@ -73,10 +73,9 @@ NetPref_profile(const NetPref* net_pref)
 static bool
 NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 {
-	static const uint8_t bssid_none[IEEE80211_ADDR_LEN] = BSSID_NONE;
 	bool bssids_match;
 
-	if (0 != memcmp(net_pref->bssid, bssid_none, IEEE80211_ADDR_LEN))
+	if (0 != memcmp(net_pref->bssid, BSSID_NONE, IEEE80211_ADDR_LEN))
 		bssids_match = (0 == memcmp(net_pref->bssid, nr->nr_bssid,
 		                            IEEE80211_ADDR_LEN));
 	else bssids_match = true;
