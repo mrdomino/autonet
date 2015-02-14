@@ -41,8 +41,14 @@ typedef struct {
 static const char *ifname = IFNAME;
 #define HOSTNAME_IF "/etc/hostname." IFNAME
 
+/* XX The next two decls currently reduce binary size.
+ * If commenting them doesn't yield a bigger binary, remove them.
+ */
+void errx(int, const char*, ...) __attribute__((noreturn));
+void err(int, const char*, ...) __attribute__((noreturn));
 
-__dead static void
+
+static void
 usage(const char* argv0)
 {
 	fprintf(stderr,
@@ -90,7 +96,7 @@ NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
  * Links /etc/hostname.<ifname> -> /etc/hostname.d/<ifname>.<profile>.
  * Dies if /etc/hostname.<ifname> exists and is not a symlink.
  */
-__dead static void
+static void
 NetPref_connect(const NetPref* net_pref)
 {
 	struct stat sb;
@@ -121,7 +127,7 @@ NetPref_connect(const NetPref* net_pref)
 	err(1, "execl");
 }
 
-__dead int
+int
 main(int argc, const char* argv[])
 {
 	struct ieee80211_nodereq_all na;
