@@ -38,7 +38,6 @@ typedef struct {
 
 #include "config.h"
 
-static const char *ifname = IFNAME;
 #define HOSTNAME_IF "/etc/hostname." IFNAME
 
 static char* const connect_cmd[] =
@@ -112,7 +111,7 @@ NetPref_connect(const NetPref* net_pref)
 		if (unlink(HOSTNAME_IF) < 0)
 			err(1, "unlink");
 	}
-	r = snprintf(buf, sizeof(buf), "hostname.d/%s.%s", ifname, profile);
+	r = snprintf(buf, sizeof(buf), "hostname.d/"IFNAME".%s", profile);
 	if (r < 0)
 		err(1, "snprintf");
 	assert((size_t)r < sizeof(buf));
@@ -137,7 +136,7 @@ main(int argc, const char* argv[])
 
 	/* Bring the interface up and scan for networks */
 	bzero(&ifr, sizeof(ifr));
-	(void) strlcpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
+	(void) strlcpy(ifr.ifr_name, IFNAME, sizeof(ifr.ifr_name));
 	s = socket(AF_INET, SOCK_DGRAM, 0);
 	if (s < 0)
 		err(1, "socket");
@@ -157,7 +156,7 @@ main(int argc, const char* argv[])
 	bzero(&nr, sizeof(nr));
 	na.na_node = nr;
 	na.na_size = sizeof(nr);
-	(void) strlcpy(na.na_ifname, ifname, sizeof(na.na_ifname));
+	(void) strlcpy(na.na_ifname, IFNAME, sizeof(na.na_ifname));
 	if (ioctl(s, SIOCG80211ALLNODES, &na) != 0)
 		err(1, "SIOCG80211ALLNODES");
 	close(s);
