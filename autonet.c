@@ -57,28 +57,27 @@ usage(const char* argv0)
 	fprintf(stderr,
 	        "usage: %s\n"
 	        "automatic wifi network chooser.\n"
-	        "Creates an appropriate /etc/hostname.%s and "
-	        "execs /etc/netstart %s.\n",
-	        argv0, ifname, ifname);
+	        "Creates an appropriate /etc/hostname."IFNAME" and "
+	        "execs /etc/netstart "IFNAME".\n",
+	        argv0);
 	exit(1);
 }
 
 static bool
 NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 {
-	bool bssids_match;
+	bool bssids_match, nwids_match;
 
 	if (0 != memcmp(net_pref->bssid, BSSID_NONE, IEEE80211_ADDR_LEN))
 		bssids_match = (0 == memcmp(net_pref->bssid, nr->nr_bssid,
 		                            IEEE80211_ADDR_LEN));
 	else bssids_match = true;
-	if (!net_pref->nwid)
-		return bssids_match;
-	return bssids_match &&
-	       strlen(net_pref->nwid) == nr->nr_nwid_len &&
-	       (0 == strncmp(net_pref->nwid,
-	                     (const char*)nr->nr_nwid,
-	                     nr->nr_nwid_len));
+	if (net_pref->nwid)
+		nwids_match = strlen(net_pref->nwid) == nr->nr_nwid_len &&
+			(0 == strncmp(net_pref->nwid, (const char*)nr->nr_nwid,
+			              nr->nr_nwid_len));
+	else nwids_match = true;
+	return bssids_match && nwids_match;
 }
 
 /*
