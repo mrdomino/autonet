@@ -41,6 +41,10 @@ typedef struct {
 static const char *ifname = IFNAME;
 #define HOSTNAME_IF "/etc/hostname." IFNAME
 
+static char* const connect_cmd[] =
+	{ "/bin/sh", "/etc/netstart", IFNAME, NULL };
+static char* const connect_env[] = { NULL };
+
 /* XX The next two decls currently reduce binary size.
  * If commenting them doesn't yield a bigger binary, remove them.
  */
@@ -115,8 +119,8 @@ NetPref_connect(const NetPref* net_pref)
 	if (symlink(buf, HOSTNAME_IF) < 0)
 		err(1, "symlink");
 	/* exec netstart(8) */
-	(void) execl("/bin/sh", "/bin/sh", "/etc/netstart", ifname, NULL);
-	err(1, "execl");
+	(void) execve(connect_cmd[0], connect_cmd, connect_env);
+	err(1, "execve");
 }
 
 int
