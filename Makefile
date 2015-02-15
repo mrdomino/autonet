@@ -25,9 +25,18 @@ autonet: autonet.o
 	@echo CC -o $@
 	@${CC} -o $@ autonet.o ${LDFLAGS}
 
+dist: clean
+	@echo creating dist tarball
+	@mkdir -p autonet-${VERSION}
+	@cp -R LICENSE Makefile config.mk config.def.h README \
+		autonet.c autonet.1 examples autonet-${VERSION}
+	@tar -cf autonet-${VERSION}.tar autonet-${VERSION}
+	@gzip autonet-${VERSION}.tar
+	@rm -rf autonet-${VERSION}
+
 clean:
 	@echo cleaning
-	@rm -f autonet autonet.o
+	@rm -f autonet autonet.o autonet-${VERSION}.tar.gz
 
 install: all
 	@echo installing executable to ${DESTDIR}${PREFIX}/bin
@@ -42,4 +51,4 @@ uninstall:
 	@echo removing executable from ${DESTDIR}${PREFIX}/bin
 	@rm -f ${DESTDIR}${PREFIX}/bin/autonet
 
-.PHONY: all options clean install uninstall
+.PHONY: all options clean dist install uninstall
