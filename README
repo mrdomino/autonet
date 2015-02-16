@@ -61,7 +61,7 @@ Security considerations
 autonet installs itself setuid root since it needs a bunch of
 permissions and doesn't do anything too complicated. It does,
 however, fall into the set of setuid binaries that contain calls
-to execl("/bin/sh", ...). While the execl args are pretty well
-determined and extraordinarily unlikely to pose a security risk,
-paranoid sysadmins may wish to install it non-setuid and make sudo
-exceptions for users that have permission to run it.
+to execve("/bin/sh", ...). While the args are pretty well determined
+and extraordinarily unlikely to pose a security risk, paranoid
+sysadmins may wish to install it non-setuid and make sudo exceptions
+for users that have permission to run it.
