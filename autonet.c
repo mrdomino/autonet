@@ -58,23 +58,23 @@ usage(const char* argv0)
 }
 
 static const char*
-NetPref_profile(const NetPref* net_pref)
+NetPref_profile(const NetPref* np)
 {
-	return net_pref->filename ?  net_pref->filename : net_pref->nwid;
+	return np->filename ?  np->filename : np->nwid;
 }
 
 static bool
-NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
+NetPref_match(const NetPref* np, const struct ieee80211_nodereq* nr)
 {
 	bool bssids_match, nwids_match;
 
-	if (0 != memcmp(net_pref->bssid, BSSID_NONE, IEEE80211_ADDR_LEN))
-		bssids_match = (0 == memcmp(net_pref->bssid, nr->nr_bssid,
+	if (0 != memcmp(np->bssid, BSSID_NONE, IEEE80211_ADDR_LEN))
+		bssids_match = (0 == memcmp(np->bssid, nr->nr_bssid,
 		                            IEEE80211_ADDR_LEN));
 	else bssids_match = true;
-	if (net_pref->nwid)
-		nwids_match = strlen(net_pref->nwid) == nr->nr_nwid_len &&
-			(0 == strncmp(net_pref->nwid, (const char*)nr->nr_nwid,
+	if (np->nwid)
+		nwids_match = strlen(np->nwid) == nr->nr_nwid_len &&
+			(0 == strncmp(np->nwid, (const char*)nr->nr_nwid,
 			              nr->nr_nwid_len));
 	else nwids_match = true;
 	return bssids_match && nwids_match;
@@ -88,14 +88,14 @@ NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
  * Dies if /etc/hostname.<ifname> exists and is not a symlink.
  */
 static void
-NetPref_connect(const NetPref* net_pref)
+NetPref_connect(const NetPref* np)
 {
 	struct stat sb;
 	int r;
 	char buf[256];
 	const char *profile;
 
-	profile = NetPref_profile(net_pref);
+	profile = NetPref_profile(np);
 	assert(profile);
 	printf("network %s\n", profile);
 
@@ -128,7 +128,7 @@ main(int argc, const char* argv[])
 	struct ieee80211_nodereq nr[512];
 	struct ifreq ifr;
 	int s, i;
-	const NetPref *net_pref;
+	const NetPref *np;
 
 	if (argc != 1)
 		usage(argv[0]);
@@ -161,10 +161,10 @@ main(int argc, const char* argv[])
 	close(s);
 
 	/* Search for a match in order of preference */
-	for (net_pref = &networks[0]; NetPref_profile(net_pref); net_pref++) {
+	for (np = &networks[0]; NetPref_profile(np); np++) {
 		for (i = 0; i < na.na_nodes; i++) {
-			if (NetPref_match(net_pref, &nr[i])) {
-				NetPref_connect(net_pref);
+			if (NetPref_match(np, &nr[i])) {
+				NetPref_connect(np);
 				/*NOTREACHED*/
 			}
 		}
