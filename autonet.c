@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/queue.h>
 
 #include <net/if.h>
 #include <net80211/ieee80211.h>
@@ -16,6 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "arg.h"
 
 /*
  * Network profile preference.
@@ -43,13 +46,14 @@ typedef struct {
 static char* const connect_cmd[] =
 	{ "/bin/sh", "/etc/netstart", IFNAME, NULL };
 static char* const connect_env[] = { NULL };
+char* argv0;
 
 
 static void
-usage(const char* argv0)
+usage()
 {
 	fprintf(stderr,
-	        "usage: %s\n"
+	        "usage: %s [-v] [[-x excluded_profile] [-x ...] ...]\n"
 	        "automatic wifi network chooser.\n"
 	        "Creates an appropriate /etc/hostname."IFNAME" and "
 	        "execs /etc/netstart "IFNAME".\n",
@@ -122,16 +126,34 @@ NetPref_connect(const NetPref* np)
 }
 
 int
-main(int argc, const char* argv[])
+main(int argc, char* argv[])
 {
 	struct ieee80211_nodereq_all na;
 	struct ieee80211_nodereq nr[512];
 	struct ifreq ifr;
 	int s, i;
 	const NetPref *np;
+	static SLIST_HEAD(np_excludes, np_exclude) excludes;
+	struct np_exclude {
+		char* npe_name;
+		SLIST_ENTRY(np_exclude) npe_next;
+	} *npe;
 
-	if (argc != 1)
-		usage(argv[0]);
+	SLIST_INIT(&excludes);
+	ARGBEGIN {
+	case 'v':
+		fputs("autonet-"VERSION
+		      ", (c) 2015 Steven Dee, see LICENSE for details\n",
+		      stderr);
+		exit(1);
+	case 'x':
+		npe = malloc(sizeof *npe);
+		npe->npe_name = EARGF(usage());
+		SLIST_INSERT_HEAD(&excludes, npe, npe_next);
+		break;
+	default:
+		usage();
+	} ARGEND;
 
 	/* Bring the interface up and scan for networks */
 	bzero(&ifr, sizeof(ifr));
@@ -162,12 +184,15 @@ main(int argc, const char* argv[])
 
 	/* Search for a match in order of preference */
 	for (np = &networks[0]; NetPref_profile(np); np++) {
-		for (i = 0; i < na.na_nodes; i++) {
+		SLIST_FOREACH(npe, &excludes, npe_next)
+			if(!strcmp(npe->npe_name, NetPref_profile(np)))
+				goto continue_outer;
+		for (i = 0; i < na.na_nodes; i++)
 			if (NetPref_match(np, &nr[i])) {
 				NetPref_connect(np);
 				/*NOTREACHED*/
 			}
-		}
+continue_outer: ;
 	}
 	errx(2, "no known network found");
 	/*NOTREACHED*/
