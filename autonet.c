@@ -57,6 +57,12 @@ usage(const char* argv0)
 	exit(1);
 }
 
+static const char*
+NetPref_profile(const NetPref* net_pref)
+{
+	return net_pref->filename ?  net_pref->filename : net_pref->nwid;
+}
+
 static bool
 NetPref_match(const NetPref* net_pref, const struct ieee80211_nodereq* nr)
 {
@@ -86,10 +92,10 @@ NetPref_connect(const NetPref* net_pref)
 {
 	struct stat sb;
 	int r;
-	const char *profile;
 	char buf[256];
+	const char *profile;
 
-	profile = net_pref->filename ? net_pref->filename : net_pref->nwid;
+	profile = NetPref_profile(net_pref);
 	assert(profile);
 	printf("network %s\n", profile);
 
@@ -155,8 +161,7 @@ main(int argc, const char* argv[])
 	close(s);
 
 	/* Search for a match in order of preference */
-	for (net_pref = &networks[0];
-	     net_pref->nwid || net_pref->filename; net_pref++) {
+	for (net_pref = &networks[0]; NetPref_profile(net_pref); net_pref++) {
 		for (i = 0; i < na.na_nodes; i++) {
 			if (NetPref_match(net_pref, &nr[i])) {
 				NetPref_connect(net_pref);
