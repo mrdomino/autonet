@@ -44,12 +44,6 @@ static char* const connect_cmd[] =
 	{ "/bin/sh", "/etc/netstart", IFNAME, NULL };
 static char* const connect_env[] = { NULL };
 
-/* XX The next two decls currently reduce binary size.
- * If commenting them doesn't yield a bigger binary, remove them.
- */
-void errx(int, const char*, ...) __attribute__((noreturn));
-void err(int, const char*, ...) __attribute__((noreturn));
-
 
 static void
 usage(const char* argv0)
