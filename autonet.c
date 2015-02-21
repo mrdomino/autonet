@@ -133,13 +133,13 @@ main(int argc, char* argv[])
 	struct ifreq ifr;
 	int s, i;
 	const NetPref *np;
-	static SLIST_HEAD(np_excludes, np_exclude) excludes;
+	static SLIST_HEAD(np_excludes, np_exclude) excludes =
+		SLIST_HEAD_INITIALIZER(excludes);
 	struct np_exclude {
 		char* npe_name;
 		SLIST_ENTRY(np_exclude) npe_next;
 	} *npe;
 
-	SLIST_INIT(&excludes);
 	ARGBEGIN {
 	case 'v':
 		fputs("autonet-"VERSION
