@@ -7,6 +7,12 @@
 .Nd automatically connect to a known wifi network
 .Sh SYNOPSIS
 .Nm
+.Op Fl v
+.Oo
+.Fl x Ar excluded_profile
+.Op Fl x Ar ...
+.Ar ...
+.Oc
 .Sh DESCRIPTION
 .Nm
 brings up the configured wireless interface, scans for networks,
@@ -24,6 +30,19 @@ execs
 .Xr netstart 8
 for
 .Ar ifname .
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl v
+Print the version and exit.
+.It Fl x Ar excluded_profile
+Don't try to connect to the named profile, even if it shows up in
+the scan.
+.El
+.Pp
+Multiple profiles may be passed with
+.Fl x
+to exclude more than one profile.
 .Pp
 There are some things
 .Nm
