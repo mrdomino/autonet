@@ -9,5 +9,5 @@ LDFLAGS = -s
 
 CC = cc
 
-# Change to 0755 to require sudo access
-MODE = 4755
+# Change to 4755 to not require sudo access
+MODE = 0755
