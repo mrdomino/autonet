@@ -49,7 +49,7 @@ char* argv0;
 
 
 static void
-usage()
+usage(void)
 {
 	fprintf(stderr,
 	        "usage: %s [-v] [[-x excluded_profile] [-x ...] ...]\n"
