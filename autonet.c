@@ -24,7 +24,7 @@
  * Network profile preference.
  *
  * Maps discovered network nwids and/or bssids to known profile names.
- * Matches against nwid if non-NULL, and against bssid if other than BSSID_NONE.
+ * Matches against nwid if non-NULL, and against bssid if other than BSSID_ANY.
  * If filename is NULL, nwid is the profile name.
  */
 typedef struct {
@@ -36,8 +36,7 @@ typedef struct {
 	char*   filename;
 } NetPref;
 
-/* use the broadcast addr for BSSID_NONE; Xerox has OUI 00:00:00 */
-#define BSSID_NONE "\xff\xff\xff\xff\xff\xff"
+#define BSSID_ANY "\xff\xff\xff\xff\xff\xff"
 
 #include "config.h"
 
@@ -72,7 +71,7 @@ NetPref_match(const NetPref* np, const struct ieee80211_nodereq* nr)
 {
 	bool bssids_match, nwids_match;
 
-	if (0 != memcmp(np->bssid, BSSID_NONE, IEEE80211_ADDR_LEN))
+	if (0 != memcmp(np->bssid, BSSID_ANY, IEEE80211_ADDR_LEN))
 		bssids_match = (0 == memcmp(np->bssid, nr->nr_bssid,
 		                            IEEE80211_ADDR_LEN));
 	else bssids_match = true;
