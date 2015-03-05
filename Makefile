@@ -3,7 +3,7 @@
 
 include config.mk
 
-all: options autonet
+all: options autonet netpref-line
 
 options:
 	@echo autonet build options:
@@ -19,11 +19,15 @@ config.h:
 	@echo creating $@ from config.def.h
 	@cp config.def.h $@
 
-autonet.o: config.h config.mk
+autonet.o netpref-line.o: config.h config.mk
 
 autonet: autonet.o
 	@echo CC -o $@
 	@${CC} -o $@ autonet.o ${LDFLAGS}
+
+netpref-line: netpref-line.o
+	@echo CC -o $@
+	@${CC} -o $@ netpref-line.o ${LDFLAGS}
 
 dist: clean
 	@echo creating dist tarball
@@ -36,19 +40,24 @@ dist: clean
 
 clean:
 	@echo cleaning
-	@rm -f autonet autonet.o autonet-${VERSION}.tar.gz
+	@rm -f autonet autonet.o netpref-line netpref-line.o autonet-${VERSION}.tar.gz
 
 install: all
-	@echo installing executable to ${DESTDIR}${PREFIX}/bin
+	@echo installing executables to ${DESTDIR}${PREFIX}/bin
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
 	@cp -f autonet ${DESTDIR}${PREFIX}/bin
 	@chmod ${MODE} ${DESTDIR}${PREFIX}/bin/autonet
+	@cp -f netpref-line ${DESTDIR}${PREFIX}/bin
+	@chmod 0755 ${DESTDIR}${PREFIX}/bin/netpref-line
+	@cp -f netpref-new ${DESTDIR}${PREFIX}/bin
+	@chmod 0755 ${DESTDIR}${PREFIX}/bin/netpref-new
 	@echo installing manual page to ${DESTDIR}${MANPREFIX}/man1
 	@cp -f autonet.1 ${DESTDIR}${MANPREFIX}/man1
 	@chmod 644 ${DESTDIR}${MANPREFIX}/man1/autonet.1
 
 uninstall:
-	@echo removing executable from ${DESTDIR}${PREFIX}/bin
+	@echo removing executables from ${DESTDIR}${PREFIX}/bin
 	@rm -f ${DESTDIR}${PREFIX}/bin/autonet
+	@rm -f ${DESTDIR}${PREFIX}/bin/netpref-line
 
 .PHONY: all options clean dist install uninstall
