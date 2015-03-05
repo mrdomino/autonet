@@ -26,6 +26,7 @@ function netpref_new {
 
 
 [ 1 -ge $# ] || usage
+[ "x$1" = "x--help" ] && usage
 
 IFNAME=iwn0
 PROFILE=$1
