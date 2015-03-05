@@ -19,7 +19,7 @@ function netpref_new {
 		  echo accept?
 		  read &&
 		  { sudo cp -f "$CONFIG_H_NEW" "$CONFIG_H" &&
-		    sudo cp -f "$filename" "/etc/hostname.d/$IFNAME.${profile:-$nwid}"
+		    sudo cp -i "$filename" "/etc/hostname.d/$IFNAME.${profile:-$nwid}"
 		  }
 		}
 }
