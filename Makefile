@@ -47,10 +47,12 @@ install: all
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
 	@cp -f autonet ${DESTDIR}${PREFIX}/bin
 	@chmod ${MODE} ${DESTDIR}${PREFIX}/bin/autonet
-	@cp -f netpref-line ${DESTDIR}${PREFIX}/bin
-	@chmod 0755 ${DESTDIR}${PREFIX}/bin/netpref-line
 	@cp -f netpref-new ${DESTDIR}${PREFIX}/bin
 	@chmod 0755 ${DESTDIR}${PREFIX}/bin/netpref-new
+	@echo installing netpref-line to ${DESTDIR}${PREFIX}/libexec
+	@mkdir -p ${DESTDIR}${PREFIX}/libexec
+	@cp -f netpref-line ${DESTDIR}${PREFIX}/libexec
+	@chmod 0755 ${DESTDIR}${PREFIX}/libexec/netpref-line
 	@echo installing manual page to ${DESTDIR}${MANPREFIX}/man1
 	@cp -f autonet.1 ${DESTDIR}${MANPREFIX}/man1
 	@chmod 644 ${DESTDIR}${MANPREFIX}/man1/autonet.1
@@ -58,6 +60,8 @@ install: all
 uninstall:
 	@echo removing executables from ${DESTDIR}${PREFIX}/bin
 	@rm -f ${DESTDIR}${PREFIX}/bin/autonet
-	@rm -f ${DESTDIR}${PREFIX}/bin/netpref-line
+	@rm -f ${DESTDIR}${PREFIX}/bin/netpref-new
+	@echo removing netpref-line from ${DESTDIR}${PREFIX}/libexec
+	@rm -f ${DESTDIR}${PREFIX}/libexec/netpref-line
 
 .PHONY: all options clean dist install uninstall

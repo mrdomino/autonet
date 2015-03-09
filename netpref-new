@@ -1,5 +1,7 @@
 #!/bin/sh
 
+PREFIX=$(dirname $(dirname $0))
+
 function usage {
 	echo "Usage: $(basename $0) [profile-name]" 1>&2
 	exit 1
@@ -10,7 +12,7 @@ function netpref_new {
 	local nwid=$(grep -e '^nwid ' $filename | cut -d' ' -f2-)
 	local bssid=$(grep -e '^bssid ' $filename | cut -d' ' -f2-)
 	local profile=$(grep -e '^# profile ' $filename | cut -d' ' -f3-)
-	netpref-line "$nwid" "${bssid:--}" "$profile" > "$CONFIG_H_LINE" &&
+	$PREFIX/libexec/netpref-line "$nwid" "${bssid:--}" "$profile" > "$CONFIG_H_LINE" &&
 		sed -e '/^\/\* netpref-new added \*\/$/{
 			r '"$CONFIG_H_LINE"'
 		}' "$CONFIG_H" > "$CONFIG_H_NEW" &&
