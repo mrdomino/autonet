@@ -1,9 +1,10 @@
 #!/bin/sh
 
 PREFIX=$(dirname $(dirname $0))
+argv0=$(basename $0)
 
 function usage {
-	echo "Usage: $(basename $0) [profile-name]" 1>&2
+	echo "Usage: $argv0 [profile-name]" 1>&2
 	exit 1
 }
 
