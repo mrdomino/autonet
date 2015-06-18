@@ -35,7 +35,7 @@ Configuration
 Edit config.h and recompile.
 
 autonet assumes that you have files under /etc/hostname.d that are
-named like "<ifname>.<network-name>". There must be a corrseponding
+named like "<ifname>.<network-name>". There must be a corresponding
 file for each NetPref defined in config.h, named for either the
 filename or, if filename is NULL, the nwid. autonet doesn't check
 this for you -- you have to do it yourself.
