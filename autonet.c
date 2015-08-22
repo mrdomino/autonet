@@ -28,9 +28,6 @@
  * If filename is NULL, nwid is the profile name.
  */
 typedef struct {
-	/* TODO: numeric priority, connect to the network with highest signal
-	 * strength at best priority.
-	 */
 	char*   nwid;
 	uint8_t bssid[IEEE80211_ADDR_LEN];
 	char*   filename;
