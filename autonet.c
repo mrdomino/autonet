@@ -184,12 +184,9 @@ main(int argc, char* argv[])
 			if(!strcmp(npe->npe_name, NetPref_profile(np)))
 				goto continue_outer;
 		for (i = 0; i < na.na_nodes; i++)
-			if (NetPref_match(np, &nr[i])) {
+			if (NetPref_match(np, &nr[i]))
 				NetPref_connect(np);
-				/*NOTREACHED*/
-			}
 continue_outer: ;
 	}
 	errx(2, "no known network found");
-	/*NOTREACHED*/
 }
