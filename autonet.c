@@ -60,7 +60,7 @@ usage(void)
 static const char*
 NetPref_profile(const NetPref* np)
 {
-	return np->filename ?  np->filename : np->nwid;
+	return np->filename ? np->filename : np->nwid;
 }
 
 static bool
@@ -68,15 +68,12 @@ NetPref_match(const NetPref* np, const struct ieee80211_nodereq* nr)
 {
 	bool bssids_match, nwids_match;
 
-	if (0 != memcmp(np->bssid, BSSID_ANY, IEEE80211_ADDR_LEN))
-		bssids_match = (0 == memcmp(np->bssid, nr->nr_bssid,
-		                            IEEE80211_ADDR_LEN));
-	else bssids_match = true;
-	if (np->nwid)
-		nwids_match = strlen(np->nwid) == nr->nr_nwid_len &&
-			(0 == strncmp(np->nwid, (const char*)nr->nr_nwid,
-			              nr->nr_nwid_len));
-	else nwids_match = true;
+	bssids_match =
+		!memcmp(np->bssid, BSSID_ANY, IEEE80211_ADDR_LEN) ||
+		!memcmp(np->bssid, nr->nr_bssid, IEEE80211_ADDR_LEN);
+	nwids_match =
+		np->nwid && strlen(np->nwid) == nr->nr_nwid_len &&
+		!strncmp(np->nwid, (const char*)nr->nr_nwid, nr->nr_nwid_len);
 	return bssids_match && nwids_match;
 }
 
