@@ -123,6 +123,7 @@ main(int argc, char* argv[])
 {
 	struct ieee80211_nodereq_all na;
 	struct ieee80211_nodereq nr[512];
+	struct ieee80211_bssid bssid;
 	struct ifreq ifr;
 	int s, i;
 	const NetPref *np;
@@ -148,12 +149,20 @@ main(int argc, char* argv[])
 		usage();
 	} ARGEND;
 
-	/* Bring the interface up and scan for networks */
-	bzero(&ifr, sizeof(ifr));
-	(void) strlcpy(ifr.ifr_name, IFNAME, sizeof(ifr.ifr_name));
 	s = socket(AF_INET, SOCK_DGRAM, 0);
 	if (s < 0)
 		err(1, "socket");
+	/* TODO: exit successfully if network already active */
+
+	/* Unset any previously configured BSSID */
+	bzero(&bssid.i_bssid, sizeof(bssid.i_bssid));
+	(void) strlcpy(bssid.i_name, IFNAME, sizeof(bssid.i_name));
+	if (ioctl(s, SIOCS80211BSSID, &bssid) == -1)
+		warn("SIOCS80211BSSID");
+
+	/* Bring the interface up */
+	bzero(&ifr, sizeof(ifr));
+	(void) strlcpy(ifr.ifr_name, IFNAME, sizeof(ifr.ifr_name));
 	if (ioctl(s, SIOCGIFFLAGS, (caddr_t)&ifr) < 0)
 		err(1, "SIOCGIFFLAGS");
 	if (!(ifr.ifr_flags & IFF_UP)) {
@@ -161,11 +170,10 @@ main(int argc, char* argv[])
 		if (ioctl(s, SIOCSIFFLAGS, (caddr_t)&ifr) < 0)
 			err(1, "SIOCSIFFLAGS");
 	}
-	/* TODO: exit successfully if network already active */
+
+	/* Scan for networks */
 	if (ioctl(s, SIOCS80211SCAN, (caddr_t)&ifr) != 0)
 		err(1, "SIOCS80211SCAN");
-
-	/* Get all the networks we found */
 	bzero(&na, sizeof(na));
 	bzero(&nr, sizeof(nr));
 	na.na_node = nr;
@@ -173,7 +181,9 @@ main(int argc, char* argv[])
 	(void) strlcpy(na.na_ifname, IFNAME, sizeof(na.na_ifname));
 	if (ioctl(s, SIOCG80211ALLNODES, &na) != 0)
 		err(1, "SIOCG80211ALLNODES");
-	close(s);
+
+	if (close(s) != 0)
+		warn("close");
 
 	/* Search for a match in order of preference */
 	for (np = &networks[0]; NetPref_profile(np); np++) {
