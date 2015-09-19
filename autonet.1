@@ -37,17 +37,6 @@ The options are as follows:
 .It Fl s
 Just scan and create the symlink; don't run
 .Xr netstart 8 .
-The primary purpose of this flag is to allow boot-time autodiscovery
-by running
-.Nm
-.Fl s
-in
-.Pa /etc/rc.local
-and relying on
-.Xr netstart 8
-being run later on in the
-.Xr rc 8
-sequence.
 .It Fl v
 Print the version and exit.
 .It Fl x Ar excluded_profile
