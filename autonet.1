@@ -37,6 +37,28 @@ The options are as follows:
 .It Fl s
 Just scan and create the symlink; don't run
 .Xr netstart 8 .
+This might be used to insert a call to
+.Nm
+prior to the systemwide
+.Xr netstart 8
+in
+.Pa /etc/rc .
+One way to do this is by inserting the following code:
+.Bd -literal
+######## XXX LOCAL: run autonet
+if [ -x /usr/local/bin/autonet ]
+then
+	/usr/local/bin/autonet -s
+fi
+########
+.Ed
+.Pp
+immediately before the line in
+.Pa /etc/rc
+that reads:
+.Bd -literal
+sh /etc/netstart
+.Ed
 .It Fl v
 Print the version and exit.
 .It Fl x Ar excluded_profile
