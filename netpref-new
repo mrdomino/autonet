@@ -1,4 +1,5 @@
 #!/bin/sh
+# See LICENSE file for copyright and license details.
 
 PREFIX=$(dirname $(dirname $0))
 argv0=$(basename $0)
