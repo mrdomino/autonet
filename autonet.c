@@ -43,13 +43,14 @@ static char* const connect_cmd[] =
 	{ "/bin/sh", "/etc/netstart", IFNAME, NULL };
 static char* const connect_env[] = { NULL };
 char* argv0;
+static bool sflag;
 
 
 static void
 usage(void)
 {
 	fprintf(stderr,
-	        "usage: %s [-v] [[-x excluded_profile] [-x ...] ...]\n"
+	        "usage: %s [-s] [-v] [[-x excluded_profile] [-x ...] ...]\n"
 	        "automatic wifi network chooser.\n"
 	        "Creates an appropriate /etc/hostname."IFNAME" and "
 	        "execs /etc/netstart "IFNAME".\n",
@@ -113,9 +114,15 @@ NetPref_connect(const NetPref* np)
 	assert((size_t)r < sizeof(buf));
 	if (symlink(buf, HOSTNAME_IF) < 0)
 		err(1, "symlink");
-	/* exec netstart(8) */
-	(void) execve(connect_cmd[0], connect_cmd, connect_env);
-	err(1, "execve");
+	if (sflag) {
+		/* just symlink and exit */
+		exit(0);
+	}
+	else {
+		/* exec netstart(8) */
+		(void) execve(connect_cmd[0], connect_cmd, connect_env);
+		err(1, "execve");
+	}
 }
 
 int
@@ -135,6 +142,11 @@ main(int argc, char* argv[])
 	} *npe;
 
 	ARGBEGIN {
+	case 's':
+		if (sflag)
+			usage();
+		sflag = true;
+		break;
 	case 'v':
 		fputs("autonet-"VERSION
 		      ", (c) 2015 Steven Dee, see LICENSE for details\n",

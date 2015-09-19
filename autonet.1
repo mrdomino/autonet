@@ -7,6 +7,7 @@
 .Nd automatically connect to a known wifi network
 .Sh SYNOPSIS
 .Nm
+.Op Fl s
 .Op Fl v
 .Oo
 .Fl x Ar excluded_profile
@@ -33,6 +34,20 @@ for
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl s
+Just scan and create the symlink; don't run
+.Xr netstart 8 .
+The primary purpose of this flag is to allow boot-time autodiscovery
+by running
+.Nm
+.Fl s
+in
+.Pa /etc/rc.local
+and relying on
+.Xr netstart 8
+being run later on in the
+.Xr rc 8
+sequence.
 .It Fl v
 Print the version and exit.
 .It Fl x Ar excluded_profile
