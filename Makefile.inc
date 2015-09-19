@@ -1,5 +1,5 @@
 # See LICENSE file for copyright and license details.
-VERSION=0.6
+VERSION=0.6.1
 PREFIX=		/usr/local
 BINDIR?=	${PREFIX}/bin
 MANDIR?=	${PREFIX}/man/man
