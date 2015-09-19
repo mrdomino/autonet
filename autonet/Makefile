@@ -1,8 +1,7 @@
 # See LICENSE file for copyright and license details.
 
 PROG=	autonet
-CFLAGS+=-DVERSION=\"${VERSION}\"
-CDIAGFLAGS+=-std=c99 -pedantic -Wall -Wextra -Wno-missing-field-initializers
+CDIAGFLAGS+=-Wno-missing-field-initializers
 
 autonet.o: ${.CURDIR}/../config.h
 
