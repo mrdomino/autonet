@@ -4,12 +4,13 @@ autonet is a simple wifi network chooser for OpenBSD.
 
 Installation
 ------------
-Edit config.mk to match your local setup (autonet is installed into
-/usr/local by default.)
+Edit Makefile.inc to match your local setup (autonet is installed
+into /usr/local by default.)
 
 Then enter the following commands to build and install autonet
 (install may need to be run as root):
 
+    make obj
     make
     make install
 
