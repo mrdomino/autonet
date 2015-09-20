@@ -98,21 +98,21 @@ NetPref_connect(const NetPref* np)
 	printf("network %s\n", profile);
 
 	/* replace hostname.if(5) symlink for ifname */
-	if (lstat(HOSTNAME_IF, &sb) < 0) {
+	if (lstat(HOSTNAME_IF, &sb) == -1) {
 		if (errno != ENOENT)
 			err(1, "lstat");
 	}
 	else {
 		if (!(S_ISLNK(sb.st_mode)))
 			errx(1, HOSTNAME_IF " is not a symlink");
-		if (unlink(HOSTNAME_IF) < 0)
+		if (unlink(HOSTNAME_IF) == -1)
 			err(1, "unlink");
 	}
 	r = snprintf(buf, sizeof(buf), "hostname.d/"IFNAME".%s", profile);
 	if (r < 0)
 		err(1, "snprintf");
 	assert((size_t)r < sizeof(buf));
-	if (symlink(buf, HOSTNAME_IF) < 0)
+	if (symlink(buf, HOSTNAME_IF) == -1)
 		err(1, "symlink");
 	if (sflag) {
 		/* just symlink and exit */
@@ -162,7 +162,7 @@ main(int argc, char* argv[])
 	} ARGEND;
 
 	s = socket(AF_INET, SOCK_DGRAM, 0);
-	if (s < 0)
+	if (s == -1)
 		err(1, "socket");
 	/* TODO: exit successfully if network already active */
 
@@ -175,26 +175,26 @@ main(int argc, char* argv[])
 	/* Bring the interface up */
 	bzero(&ifr, sizeof(ifr));
 	(void) strlcpy(ifr.ifr_name, IFNAME, sizeof(ifr.ifr_name));
-	if (ioctl(s, SIOCGIFFLAGS, (caddr_t)&ifr) < 0)
+	if (ioctl(s, SIOCGIFFLAGS, (caddr_t)&ifr) == -1)
 		err(1, "SIOCGIFFLAGS");
 	if (!(ifr.ifr_flags & IFF_UP)) {
 		ifr.ifr_flags |= IFF_UP;
-		if (ioctl(s, SIOCSIFFLAGS, (caddr_t)&ifr) < 0)
+		if (ioctl(s, SIOCSIFFLAGS, (caddr_t)&ifr) == -1)
 			err(1, "SIOCSIFFLAGS");
 	}
 
 	/* Scan for networks */
-	if (ioctl(s, SIOCS80211SCAN, (caddr_t)&ifr) != 0)
+	if (ioctl(s, SIOCS80211SCAN, (caddr_t)&ifr) == -1)
 		err(1, "SIOCS80211SCAN");
 	bzero(&na, sizeof(na));
 	bzero(&nr, sizeof(nr));
 	na.na_node = nr;
 	na.na_size = sizeof(nr);
 	(void) strlcpy(na.na_ifname, IFNAME, sizeof(na.na_ifname));
-	if (ioctl(s, SIOCG80211ALLNODES, &na) != 0)
+	if (ioctl(s, SIOCG80211ALLNODES, &na) == -1)
 		err(1, "SIOCG80211ALLNODES");
 
-	if (close(s) != 0)
+	if (close(s) == -1)
 		warn("close");
 
 	/* Search for a match in order of preference */
