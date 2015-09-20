@@ -129,6 +129,7 @@ lines up with your
 .Bl -tag -width "/etc/hostname.d/XXX.YYYYYY   "
 .It Pa /etc/hostname.d/XXX.YYYYYY
 Interface- and network-specific profiles.
+.El
 .Sh EXIT STATUS
 .Nm
 exits 0 on success, 1 if any of its calls failed, and 2 if it found
@@ -139,7 +140,7 @@ no networks that matched a known profile.
 .Xr netstart 8 ,
 .Xr rc 8
 .Sh AUTHORS
-.Nm Steven Dee
+.An Steven Dee
 .Ao
 .Mt steve@smartercode.net
 .Ac
