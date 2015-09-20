@@ -56,3 +56,8 @@ if you have
 "whatever" network.
 
 autonet looks for networks in the order they're defined in config.h.
+
+Boot-time usage
+---------------
+autonet may be used to pick your computer's network on boot. A patch
+that modifies /etc/rc to do this is included as rc-autonet.patch.

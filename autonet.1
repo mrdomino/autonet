@@ -42,23 +42,7 @@ This might be used to insert a call to
 prior to the systemwide
 .Xr netstart 8
 in
-.Pa /etc/rc .
-One way to do this is by inserting the following code:
-.Bd -literal
-######## XXX LOCAL: run autonet
-if [ -x /usr/local/bin/autonet ]
-then
-	/usr/local/bin/autonet -s
-fi
-########
-.Ed
-.Pp
-immediately before the line in
-.Pa /etc/rc
-that reads:
-.Bd -literal
-sh /etc/netstart
-.Ed
+.Xr rc 8 .
 .It Fl v
 Print the version and exit.
 .It Fl x Ar excluded_profile
@@ -152,7 +136,8 @@ no networks that matched a known profile.
 .Sh SEE ALSO
 .Xr hostname.if 5 ,
 .Xr ifconfig 8 ,
-.Xr netstart 8
+.Xr netstart 8 ,
+.Xr rc 8
 .Sh AUTHORS
 .Nm Steven Dee
 .Ao

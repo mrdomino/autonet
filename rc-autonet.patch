@@ -1,0 +1,18 @@
+Modifies /etc/rc to have autonet pick the wireless network on boot.
+
+diff -u a/rc b/rc
+--- a/rc	Sun Sep 20 12:36:59 2015
++++ b/rc	Sun Sep 20 12:37:19 2015
+@@ -358,6 +358,12 @@
+ 	mv -f /etc/resolv.conf.save /etc/resolv.conf
+ 	touch /etc/resolv.conf
+ fi
++######## XXX LOCAL: use autonet if available
++if [ -x /usr/local/bin/autonet ]
++then
++	/usr/local/bin/autonet -s
++fi
++########
+ sh /etc/netstart
+ dmesg > /dev/random	# any write triggers a rekey
+ 
