@@ -22,8 +22,8 @@ function netpref_new {
 		  cat "$CONFIG_H_NEW"
 		  echo accept?
 		  read &&
-		  { sudo cp -f "$CONFIG_H_NEW" "$CONFIG_H" &&
-		    sudo cp -i "$filename" "/etc/hostname.d/$IFNAME.${profile:-$nwid}"
+		  { cp -f "$CONFIG_H_NEW" "$CONFIG_H" &&
+		    cp -i "$filename" "/etc/hostname.d/$IFNAME.${profile:-$nwid}"
 		  }
 		}
 }
