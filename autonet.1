@@ -124,7 +124,13 @@ matches. It is your responsibility to ensure that your
 .Pa config.h
 lines up with your
 .Pa hostname.d .
-.Sm on
+.Pp
+.Nm
+doesn't clear any interface configuration aside from BSSID. Therefore,
+to switch from a secured network to an open network, you'll need
+an explicit "-wpakey" in the
+.Xr hostname.if 5
+file for the open network.
 .Sh FILES
 .Bl -tag -width "/etc/hostname.d/XXX.YYYYYY   "
 .It Pa /etc/hostname.d/XXX.YYYYYY
