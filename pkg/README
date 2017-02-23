@@ -1,22 +1,21 @@
-autonet - automatically connect to a known wifi network
-=======================================================
+$OpenBSD: README.template,v 1.5 2016/08/27 09:47:26 ajacoutot Exp $
+
++-------------------------------------------------------------------------------
+| Running ${FULLPKGNAME} on OpenBSD
++-------------------------------------------------------------------------------
+
 autonet is a simple wifi network chooser for OpenBSD.
 
 Installation
-------------
-Edit Makefile.inc to match your local setup (autonet is installed
-into /usr/local by default.)
+============
 
-Then enter the following commands to build and install autonet
-(install may need to be run as root):
+Clone the repo as /usr/ports/mystuff/net/autonet. Then run:
 
-    make obj
-    make
     make install
 
-
 Using autonet
--------------
+=============
+
 Run "autonet". autonet will scan for networks. If it sees one that
 it recognizes, it will create the appropriate hostname.if(5) file
 as a symlink into /etc/hostname.d (described below) and exec
@@ -32,7 +31,8 @@ it, and then it exits. If you're in a cafe and need to figure out
 which network to connect to, just scan and configure with ifconfig(8).
 
 Configuration
--------------
+=============
+
 Edit config.h and recompile.
 
 autonet assumes that you have files under /etc/hostname.d that are

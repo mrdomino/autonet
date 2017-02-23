@@ -1,0 +1,7 @@
+@comment $OpenBSD$
+@bin bin/autonet
+bin/netpref-new
+@bin libexec/netpref-line
+@man man/man1/autonet.1
+share/doc/autonet/rc-autonet.patch
+share/doc/pkg-readmes/${FULLPKGNAME}

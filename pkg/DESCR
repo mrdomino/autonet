@@ -1,0 +1,13 @@
+autonet is a simple wifi network chooser. When you run it, it scans
+for known wifi networks. If it sees one that it recognizes, it will
+create an appropriate hostname.if(5) file and exec /etc/netstart
+<ifname>.
+
+autonet does not continuously monitor for network changes in the
+background. It doesn't show you a list of networks and ask you to
+pick one. It doesn't communicate over dbus. It has no runtime
+configuration whatsoever -- if you want to add a new network, you
+need to recompile it. You run it whenever you want to get onto a
+known wireless network, it finds a network for you and connects to
+it, and then it exits. If you're in a cafe and need to figure out
+which network to connect to, just scan and configure with ifconfig(8).

@@ -34,7 +34,7 @@ function netpref_new {
 
 IFNAME=iwn0
 PROFILE=$1
-CONFIG_H=/usr/local/src/autonet/config.h
+CONFIG_H=/usr/ports/mystuff/net/autonet/files/config.h
 
 HOSTNAME_IF=$(mktemp -t "iwn0.$PROFILE.XXXXXXXX")
 CONFIG_H_LINE=$(mktemp -t)
